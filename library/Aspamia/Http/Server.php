@@ -88,8 +88,6 @@ class Aspamia_Http_Server
         while(true) {
             if (($conn = @stream_socket_accept($this->_socket))) { 
                 $this->_handle($conn);
-            } else {
-                echo "x\n";
             }
         }
         
@@ -105,7 +103,10 @@ class Aspamia_Http_Server
     {
         // Read and parse the HTTP request line
         $request = $this->_readRequest($connection);
-        $response = $this->_handler->handle($request);  
+        $response = $this->_handler->handle($request);
+        
+        // TEST
+        $response->setHeader('connection', 'close');
         
         fwrite($connection, (string) $response);
     }

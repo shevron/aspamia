@@ -16,7 +16,7 @@ class Aspamia_Http_Server_Handler_Mock extends Aspamia_Http_Server_Handler_Abstr
         if ($this->_response) {
             return $this->_response;
         } else {
-            $body = $request->getUri() . "\r\n";
+            $body = (string) $request;
             
             return new Aspamia_Http_Response(
                 200, 
