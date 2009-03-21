@@ -8,7 +8,11 @@ class Aspamia_Http_Server_Handler_Mock extends Aspamia_Http_Server_Handler_Abstr
     
     public function setResponse($response)
     {
-        // Set the response from either a string or a response object
+        if ($response instanceof Aspamia_Http_Response) {
+            $this->_response = $response;
+        } else {
+            $this->_response = Aspamia_Http_Message::fromString($response);
+        }
     }
     
     public function handle(Aspamia_Http_Request $request)

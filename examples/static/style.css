@@ -1,0 +1,29 @@
+body {
+	font-family: Georgia, serif;
+	padding: 0px;
+	margin: 0px;
+}
+
+h1 {
+    margin: 0px;
+	padding: 30px 10px;
+	background-color: #8B6AB1;
+	color: #522D7D;
+}
+
+p {
+    padding: 0px 25px;
+}
+
+p.footer {
+    margin-top: 10em;
+	text-align: center;
+	font-size: 9pt;
+	color: #B0D97B;
+}
+
+img {
+	position: absolute;
+	top: 10px;
+	right: 15px;
+}

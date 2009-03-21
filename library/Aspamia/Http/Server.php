@@ -6,6 +6,8 @@ require_once 'Aspamia/Http/Server/Handler/Abstract.php';
 
 class Aspamia_Http_Server
 {
+    const ASPAMIA_VERSION = '0.0.1';
+     
     const DEFAULT_ADDR = '127.0.0.1';
     const DEFAULT_PORT = 8000;
     
@@ -51,12 +53,12 @@ class Aspamia_Http_Server
     
     public function setConfig($config)
     {
-        if ($config instanceof Aspamia_Config) {
+        if ($config instanceof Zend_Config) {
             $config = $config->toArray();
         } 
         
         if (! is_array($config)) {
-            throw new ErrorException("\$config is expected to be an array or a Aspamia_Config object, got " . gettype($config));
+            throw new ErrorException("\$config is expected to be an array or a Zend_Config object, got " . gettype($config));
         }
         
         foreach($config as $k => $v) {
@@ -105,7 +107,15 @@ class Aspamia_Http_Server
         $request = $this->_readRequest($connection);
         $response = $this->_handler->handle($request);
         
-        // TEST
+        $serverSignature = 'Aspamia/' . self::ASPAMIA_VERSION . ' ' . 
+                           'PHP/' . PHP_VERSION;
+        
+        $response->setHeader(array(
+        	'Server' => $serverSignature,
+            'Date'   => date(DATE_RFC1123)
+        ));
+        
+        // TODO: Right now only 'close' is working, make keep-alive work too.  
         $response->setHeader('connection', 'close');
         
         fwrite($connection, (string) $response);

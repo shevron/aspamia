@@ -6,5 +6,7 @@ set_include_path(
 );
 
 require_once 'Aspamia/Http/Server.php';
-$server = new Aspamia_Http_Server(); 
+$server = new Aspamia_Http_Server(array(
+    'handler' => 'Aspamia_Http_Server_Handler_Static'
+));
 $server->run();

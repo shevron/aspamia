@@ -179,13 +179,24 @@ class Aspamia_Http_Response extends Aspamia_Http_Message
      * @param  integer $code   HTTP statis code
      * @return string | null
      */
-    public static function getHttpReasonPhrase($code)
+    static public function getHttpReasonPhrase($code)
     {
         if (isset(self::$_messages[$code])) {
             return self::$_messages[$code];
         } else {
             return null;
         }
+    }
+    
+    /**
+     * Create an HTTP response object from a string
+     *
+     * @param  string $message
+     * @return Aspamia_Http_Response
+     */
+    static public function fromString($message)
+    {
+        // TODO: Implement me!
     }
 
 //    /**
