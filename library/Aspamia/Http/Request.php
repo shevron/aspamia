@@ -155,17 +155,20 @@ class Aspamia_Http_Request extends Aspamia_Http_Message
     {
         $headerlines = self::_readHeaders($connection);
         if (empty($headerlines)) {
-            throw new ErrorException("Unable to read request: headers are empty");
+            require_once 'Aspamia/Http/Exception.php';
+            throw new Aspamia_Http_Exception("Unable to read request: headers are empty");
         }
         
         $requestline = explode(' ', array_shift($headerlines), 3);
         if (! count($requestline) == 3) {
-            throw new ErrorException("Unable to read request: invalid HTTP request line '{$headerlines[0]}'");
+            require_once 'Aspamia/Http/Exception.php';
+            throw new Aspamia_Http_Exception("Unable to read request: invalid HTTP request line '{$headerlines[0]}'");
         }
         
         $protocol = explode('/', $requestline[2]);
-        if (! ($protocol[0] == 'HTTP' && ($protocol[1] == '1.1' || $protocol[1] == '1.0'))) { 
-            throw new ErrorException("Unsupported protocol version: {$requestline[2]}");
+        if (! ($protocol[0] == 'HTTP' && ($protocol[1] == '1.1' || $protocol[1] == '1.0'))) {
+            require_once 'Aspamia/Http/Exception.php'; 
+            throw new Aspamia_Http_Exception("Unsupported protocol version: {$requestline[2]}");
         }
         
         $method = strtoupper($requestline[0]);
@@ -175,7 +178,8 @@ class Aspamia_Http_Request extends Aspamia_Http_Message
         foreach ($headerlines as $line) {
             $header = explode(":", $line, 2);
             if (! count($header) == 2) {
-                throw new ErrorException("Invalid HTTP header format: $line");
+                require_once 'Aspamia/Http/Exception.php';
+                throw new Aspamia_Http_Exception("Invalid HTTP header format: $line");
             }
             
             $headers[strtolower(trim($header[0]))] = trim($header[1]);
