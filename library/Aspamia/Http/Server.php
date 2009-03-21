@@ -18,8 +18,25 @@ class Aspamia_Http_Server
         'handler'        => 'Aspamia_Http_Server_Handler_Mock'
     );
     
+    /**
+     * Array of registered plugins
+     *
+     * @var unknown_type
+     */
+    protected $_plugins = array();
+    
+    /**
+     * Main listening socket
+     *
+     * @var resource
+     */
     protected $_socket = null;
     
+    /**
+     * Stream context (if set)
+     *
+     * @var resource
+     */
     protected $_context = null;
     
     /**
@@ -51,6 +68,11 @@ class Aspamia_Http_Server
         }
     }
     
+    /**
+     * Set the configuration data for this server object
+     *
+     * @param Zend_Config | array $config
+     */
     public function setConfig($config)
     {
         if ($config instanceof Zend_Config) {
@@ -58,7 +80,8 @@ class Aspamia_Http_Server
         } 
         
         if (! is_array($config)) {
-            throw new ErrorException("\$config is expected to be an array or a Zend_Config object, got " . gettype($config));
+            require_once 'Aspamia/Http/Server/Exception.php';
+            throw new Aspamia_Http_Server_Exception("\$config is expected to be an array or a Zend_Config object, got " . gettype($config));
         }
         
         foreach($config as $k => $v) {
@@ -67,15 +90,33 @@ class Aspamia_Http_Server
     }
         
     /**
+     * Register a plug-in
+     *
+     * @param Aspamia_Http_Server_Plugin_Abstract $plugin
+     */
+    public function registerPlugin(Aspamia_Http_Server_Plugin_Abstract $plugin)
+    {
+        $plugin->setServer($this);
+        $this->_plugins[] = $plugin;
+    }
+    
+    /**
+     * Get the bind address for the server
+     *
+     * @return string
+     */
+    public function getBindAddr()
+    {
+        return $this->_config['stream_wrapper'] . '://' . 
+               $this->_config['bind_addr'] . ':' . 
+               $this->_config['bind_port'];   
+    }
+    /**
      * TODO: Should this be adapter based?
      *
      */
     public function run()
     {
-        $addr = $this->_config['stream_wrapper'] . '://' . 
-                $this->_config['bind_addr'] . ':' . 
-                $this->_config['bind_port'];
-        
         $flags = STREAM_SERVER_BIND | STREAM_SERVER_LISTEN;
         
         if (! $this->_context) {
@@ -84,7 +125,7 @@ class Aspamia_Http_Server
         
         $errno = 0;
         $errstr = null;
-        $this->_socket = stream_socket_server($addr, $errno, $errstr, $flags, $this->_context);
+        $this->_socket = stream_socket_server($this->getBindAddr(), $errno, $errstr, $flags, $this->_context);
         if (! $this->_socket) {
             require_once 'Aspamia/Http/Server/Exception.php';
             $message = "Unable to bind to '$addr'";
@@ -92,13 +133,24 @@ class Aspamia_Http_Server
             throw new Aspamia_Http_Server_Exception($message);
         }
         
+        $this->_callServerStartupPlugins();
+        
         while(true) {
-            if (($conn = @stream_socket_accept($this->_socket))) { 
-                $this->_handle($conn);
+            if (($conn = @stream_socket_accept($this->_socket))) {
+                try { 
+                    $this->_handle($conn);
+                } catch (Aspamia_Http_Exception $ex) {
+                    $this->_callOnErrorPlugins($ex);
+                    // Supress exception and continue looping
+                } catch (Exception $ex) {
+                     $this->_callOnErrorPlugins($ex);
+                     throw $ex;   
+                }
             }
         }
         
         fclose($this->_socket);
+        $this->_callServerShutdownPlugins();
     }
     
     public function setHandler(Aspamia_Http_Server_Handler_Abstract $handler)
@@ -109,8 +161,12 @@ class Aspamia_Http_Server
     protected function _handle($connection)
     {
         // Read and parse the HTTP request line
+        $this->_callPreRequestPlugins($connection);
         $request = $this->_readRequest($connection);
+        $this->_callPostRequestPlugins($request);
+        
         $response = $this->_handler->handle($request);
+        $this->_callPreResponsePlugins($response);
         
         $serverSignature = 'Aspamia/' . self::ASPAMIA_VERSION . ' ' . 
                            'PHP/' . PHP_VERSION;
@@ -124,10 +180,86 @@ class Aspamia_Http_Server
         $response->setHeader('connection', 'close');
         
         fwrite($connection, (string) $response);
+        $this->_callPostResponsePlugins($connection);
     }
     
     protected function _readRequest($connection)
     {
         return Aspamia_Http_Request::read($connection); 
+    }
+    
+    /**
+     * Call the server startup hook of all plugins 
+     *
+     */
+    protected function _callServerStartupPlugins()
+    {
+        foreach ($this->_plugins as $plugin) /* @var $plugin Aspamia_Http_Server_Plugin_Abstract */
+            $plugin->serverStartup();
+    }
+    
+    /**
+     * Call the server shutdown hook of all plugins
+     *
+     */
+    protected function _callServerShutdownPlugins()
+    {
+        foreach ($this->_plugins as $plugin) /* @var $plugin Aspamia_Http_Server_Plugin_Abstract */
+            $plugin->serverShutdown();
+    }
+    
+    /**
+     * Call the on-error hook of all plugins
+     *
+     * @param Exception $ex
+     */
+    protected function _callOnErrorPlugins(Exception $ex)
+    {
+        foreach ($this->_plugins as $plugin) /* @var $plugin Aspamia_Http_Server_Plugin_Abstract */
+            $plugin->onError($ex);
+    }
+    
+    /**
+     * Call the pre-request hook of all plugins
+     *
+     * @param resource $conn
+     */
+    protected function _callPreRequestPlugins($conn)
+    {
+        foreach ($this->_plugins as $plugin) /* @var $plugin Aspamia_Http_Server_Plugin_Abstract */
+            $plugin->preRequest($conn);
+    }
+    
+    /**
+     * Call the post-request hook of all plugins
+     *
+     * @param Aspamia_Http_Request $request
+     */
+    protected function _callPostRequestPlugins(Aspamia_Http_Request $request)
+    {
+        foreach ($this->_plugins as $plugin) /* @var $plugin Aspamia_Http_Server_Plugin_Abstract */
+            $plugin->postRequest($request);
+    }
+    
+    /**
+     * Call the pre-response hook of all plugins
+     *
+     * @param Aspamia_Http_Response $response
+     */
+    protected function _callPreResponsePlugins(Aspamia_Http_Response $response)
+    {
+        foreach ($this->_plugins as $plugin) /* @var $plugin Aspamia_Http_Server_Plugin_Abstract */
+            $plugin->preResponse($response);
+    }
+    
+    /**
+     * Call the post-response hook of all plugins
+     *
+     * @param resource $conn
+     */
+    protected function _callPostResponsePlugins($conn)
+    {
+        foreach ($this->_plugins as $plugin) /* @var $plugin Aspamia_Http_Server_Plugin_Abstract */
+            $plugin->postResponse($conn);
     }
 }
