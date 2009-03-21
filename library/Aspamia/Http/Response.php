@@ -108,7 +108,7 @@ class Aspamia_Http_Response extends Aspamia_Http_Message
      */
     public function __construct($code, array $headers, $body = null, $version = '1.1', $message = null)
     {
-        $this->setCode = $code;
+        $this->setCode($code);
         $this->setHeader($headers);
         $this->setBody($body);
         $this->setHttpVersion($version);
@@ -141,6 +141,23 @@ class Aspamia_Http_Response extends Aspamia_Http_Message
     public function getMessage()
     {
         return $this->_message;
+    }
+    
+    /**
+     * Set the HTTP response status code
+     *
+     * @param  integer $code
+     * @return Aspamia_Http_Response
+     */
+    public function setCode($code)
+    {
+        if (! is_int($code)) {
+            require_once 'Aspamia/Http/Exception.php';
+            throw new Aspamia_Http_Exception("Invalid HTTP status code: '$code'");
+        }
+        
+        $this->_code = $code;
+        return $this;
     }
     
     /**

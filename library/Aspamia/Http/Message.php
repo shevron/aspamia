@@ -98,18 +98,21 @@ abstract class Aspamia_Http_Message
     /**
      * Set the body of the message
      * 
-     * @param string $_body
+     * @param  string $_body
+     * @reutnr Aspamia_Http_Message
      */
     public function setBody($_body)
     {
         $this->_body = $_body;
+        return $this;
     }
 
     /**
      * Set a single header or multiple headers passed as an array
      * 
-     * @param string | array $header
-     * @param string         $value
+     * @param  string | array $header
+     * @param  string         $value
+     * @return Aspamia_Http_Message
      */
     public function setHeader($header, $value = null)
     {
@@ -155,12 +158,15 @@ abstract class Aspamia_Http_Message
                 $this->_headers[$header] = $value;
             }
         }
+        
+        return $this;
     }
 
     /**
      * Set the HTTP version
      * 
-     * @param string $_httpVersion
+     * @param  string $_httpVersion
+     * @return Aspamia_Http_Message
      */
     public function setHttpVersion($_httpVersion)
     {
@@ -170,6 +176,7 @@ abstract class Aspamia_Http_Message
         }
         
         $this->_httpVersion = $_httpVersion;
+        return $this;
     }
     
     abstract protected function _getStartLine();
