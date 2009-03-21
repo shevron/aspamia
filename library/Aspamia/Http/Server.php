@@ -82,9 +82,14 @@ class Aspamia_Http_Server
             $this->_context = stream_context_create();
         }
         
+        $errno = 0;
+        $errstr = null;
         $this->_socket = stream_socket_server($addr, $errno, $errstr, $flags, $this->_context);
         if (! $this->_socket) {
-            return false;
+            require_once 'Aspamia/Http/Server/Exception.php';
+            $message = "Unable to bind to '$addr'";
+            if ($errno || $errstr) $message .= ": [#$errno] $errstr";
+            throw new Aspamia_Http_Server_Exception($message);
         }
         
         while(true) {
