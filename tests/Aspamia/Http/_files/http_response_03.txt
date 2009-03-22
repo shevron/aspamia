@@ -1,0 +1,12 @@
+HTTP/1.1 302 Found
+Date: Sun, 22 Mar 2009 21:55:27 GMT
+Server: Apache
+X-powered-by: PHP/5.2.8-pl2-gentoo
+Location: login.php?goto=%2FZendPlatform%2Fserver%2Findex.php
+Content-length: 40
+Keep-alive: timeout=15, max=99
+Connection: Keep-Alive
+X-test: 03
+Content-type: text/html
+
+Error: Zend Platform requires a password

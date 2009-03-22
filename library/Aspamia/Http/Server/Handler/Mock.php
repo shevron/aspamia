@@ -11,7 +11,7 @@ class Aspamia_Http_Server_Handler_Mock extends Aspamia_Http_Server_Handler_Abstr
         if ($response instanceof Aspamia_Http_Response) {
             $this->_response = $response;
         } else {
-            $this->_response = Aspamia_Http_Message::fromString($response);
+            $this->_response = Aspamia_Http_Response::fromString($response);
         }
     }
     

@@ -13,10 +13,10 @@ if (!defined('PHPUnit_MAIN_METHOD')) {
     define('PHPUnit_MAIN_METHOD', 'Aspamia_Http_AllTests::main');
 }
 
-
 // Load the sub-tests of this suite
-require_once 'Aspamia/Http/ServerTest.php';
+require_once 'Aspamia/Http/ResponseTest.php';
 require_once 'Aspamia/Http/Server/Handler/AllTests.php';
+require_once 'Aspamia/Http/ServerTest.php';
 
 class Aspamia_Http_AllTests
 {
@@ -28,8 +28,10 @@ class Aspamia_Http_AllTests
     public static function suite()
     {
         $suite = new PHPUnit_Framework_TestSuite('Aspamia - Aspamia_Http');
-        $suite->addTestSuite('Aspamia_Http_ServerTest');
+        
+        $suite->addTestSuite('Aspamia_Http_ResponseTest');
         $suite->addTest(Aspamia_Http_Server_Handler_AllTests::suite());
+        $suite->addTestSuite('Aspamia_Http_ServerTest');
         
         return $suite;
     }

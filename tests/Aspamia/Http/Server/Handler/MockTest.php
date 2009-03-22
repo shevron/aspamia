@@ -55,6 +55,22 @@ class Aspamia_Http_Server_Handler_MockTest extends PHPUnit_Framework_TestCase
     }
     
     /**
+     * Test that the response can also be set as a string
+     * 
+     * @param Aspamia_Http_Response $expected 
+     * @dataProvider responseProvider
+     */
+    public function testPresetStringResponseIsReturned($expected)
+    {
+        $this->_handler->setResponse((string) $expected);
+        
+        $request = new Aspamia_Http_Request('GET', '/');
+        $response = $this->_handler->handle($request);
+        
+        $this->assertEquals($expected, $response);
+    }
+    
+    /**
      * Data Providers
      */
     

@@ -1,0 +1,8 @@
+HTTP/1.1 200 Ok
+Server: someServer
+X-test: 01
+Anotherheader: SomeValue; Some Other Value
+Content-type: text/plain
+Content-length: 35
+
+Here is some body for this response

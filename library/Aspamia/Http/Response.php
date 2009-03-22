@@ -108,7 +108,7 @@ class Aspamia_Http_Response extends Aspamia_Http_Message
      */
     public function __construct($code, array $headers, $body = null, $version = '1.1', $message = null)
     {
-        $this->setCode($code);
+        $this->setStatus($code);
         $this->setHeader($headers);
         $this->setBody($body);
         $this->setHttpVersion($version);
@@ -149,9 +149,9 @@ class Aspamia_Http_Response extends Aspamia_Http_Message
      * @param  integer $code
      * @return Aspamia_Http_Response
      */
-    public function setCode($code)
+    public function setStatus($code)
     {
-        if (! is_int($code)) {
+        if (! is_int($code) || $code < 100 || $code > 599) {
             require_once 'Aspamia/Http/Exception.php';
             throw new Aspamia_Http_Exception("Invalid HTTP status code: '$code'");
         }
@@ -196,7 +196,24 @@ class Aspamia_Http_Response extends Aspamia_Http_Message
      */
     static public function fromString($message)
     {
-        // TODO: Implement me!
+        list($headers, $body) = self::_parseString($message);
+        
+        // Extract and check the status line
+        $statusLine = array_shift($headers);
+        if (! preg_match('|^HTTP/([\d\.]+) (\d+) (.+)$|', $statusLine, $parts)) {
+            require_once 'Aspamia/Http/Exception.php';
+            throw new Aspamia_Http_Exception("Invalid HTTP response status line: $statusLine");
+        }
+
+        $response = new Aspamia_Http_Response(
+            (int) $parts[2], 
+            $headers, 
+            $body, 
+            $parts[1],
+            $parts[3]
+        );
+        
+        return $response;
     }
 
 //    /**

@@ -190,4 +190,34 @@ abstract class Aspamia_Http_Message
     {
         return $this->getAllHeaders(true) . self::CRLF . $this->getBody();
     }
+    
+    /**
+     * Helper function for request & response 'fromString()' methods
+     * 
+     * Break down an HTTP message into an array of header lines and a body
+     * 
+     * @param  string $message
+     * @return array
+     */
+    static protected function _parseString($message)
+    {
+        // Split headers from body
+        $parts = preg_split('|(?:\r?\n){2}|m', $message, 2);
+        if (count($parts) < 1) {
+            require_once 'Aspamia/Http/Exception.php';
+            throw new Aspamia_Http_Exception("Invalid HTTP message: $message");
+        }
+        
+        // Split headers into lines
+        $headers = explode("\n", $parts[0]);
+        $headers = array_map('rtrim', $headers);
+
+        if (isset($parts[1])) {
+            $body = $parts[1];
+        } else {
+            $body = '';
+        }
+        
+        return array($headers, $body);
+    }
 }
