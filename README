@@ -1,3 +1,7 @@
-Aspamia HTTP Server Library for PHP
+Aspamia HTTP Server and library for PHP
 -----------------------------------
 (c) 2009 Shahar Evron, all rights reserved
+
+Aspamia is a lightweight, simplistic HTTP server implemented entirely in PHP. 
+It is designed for use in testing and development scenarios, and is not meant
+for production use. 

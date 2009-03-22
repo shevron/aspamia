@@ -7,14 +7,20 @@ set_include_path(
 
 require_once 'Aspamia/Http/Server.php';
 require_once 'Aspamia/Http/Server/Plugin/Logger.php';
+require_once 'Aspamia/Http/Server/Handler/Static.php';
 
-// Create the server object with a single static handler
-$server = new Aspamia_Http_Server(array(
-    'handler' => 'Aspamia_Http_Server_Handler_Static'
+// Create the server object 
+$server = new Aspamia_Http_Server();
+
+// Create the handler object - a single static handler for now
+$handler = new Aspamia_Http_Server_Handler_Static(array(
+    'document_root' => dirname(__FILE__) . DIRECTORY_SEPARATOR . 'static'
 ));
+$server->setHandler($handler);
 
 // Register the logger plugin
 $server->registerPlugin(new Aspamia_Http_Server_Plugin_Logger());
 
 // Run the server!
+echo "Running Aspamia, use Ctrl+C to abort...\n";
 $server->run();
