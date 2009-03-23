@@ -81,10 +81,9 @@ class Aspamia_Http_Request extends Aspamia_Http_Message
      */
     public function setMethod($method)
     {
-        // Validate the method - this is not RFC complient but it's close 
-        // enough. If people will complain we can fix it ;)
-
-        if (! preg_match('/^[\w\-]+$/', $method)) {
+        $regex = '/^[^' . self::RE_CONTROL . self::RE_SEPARATOR . ']+$/';
+         
+        if (! preg_match($regex, $method)) {
             require_once 'Aspamia/Http/Exception.php';
             throw new Aspamia_Http_Exception("Invalid HTTP method: '$method'");
         }
@@ -103,24 +102,29 @@ class Aspamia_Http_Request extends Aspamia_Http_Message
     {
         // Validate the URI
         $uriValid = false;
-        if ($uri{0} == '/') { 
-            // Absolute URL
-            // TODO: Validate URL
-            $uriValid = true;
+        
+        if ($this->_method == 'CONNECT') {
+            if (preg_match('/^[a-zA-Z\-0-9\.]+:\d+$/', $uri)) {
+                // 'Authority' URL can be used for CONNECT method
+                $uriValid = true;
+            }
             
-        } elseif (strpos($uri, 'http') === 0) { 
-            // Absolute Path
-            // TODO: Validate path
-            $uriValid = true; 
-            
-        } elseif ($uri == '*') { 
-            // * - used for OPTIONS method
-            $uriValid = true;
-            
-        } elseif (preg_match('/^[a-zA-Z\-0-9\.]+:\d+$/', $uri)) { 
-            // authority - used for CONNECT method
-            $uriValid = true;
-            
+        } else {
+            if ($uri{0} == '/') { 
+                // Absolute Path
+                // TODO: Validate path
+                $uriValid = true;
+                
+            } elseif (strpos($uri, 'http') === 0) { 
+                // Absolute URL
+                // TODO: Validate URL
+                $uriValid = true; 
+                
+            } elseif ($uri == '*' && $this->_method == 'OPTIONS') { 
+                // * - used for OPTIONS method
+                $uriValid = true;
+                
+            }
         }
 
         if (! $uriValid) {

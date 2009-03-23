@@ -20,6 +20,12 @@ abstract class Aspamia_Http_Message
     const CRLF = "\r\n";
     
     /**
+     * Some useful regular expressions
+     */
+    const RE_CONTROL    = '[:cntrl:]';
+    const RE_SEPARATOR  = '\s\(\)<>@,;:\\"\/\[\]\?=\{\}';
+    
+    /**
      * Message headers
      *
      * @var array

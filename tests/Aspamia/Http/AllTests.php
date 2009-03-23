@@ -14,6 +14,7 @@ if (!defined('PHPUnit_MAIN_METHOD')) {
 }
 
 // Load the sub-tests of this suite
+require_once 'Aspamia/Http/RequestTest.php';
 require_once 'Aspamia/Http/ResponseTest.php';
 require_once 'Aspamia/Http/Server/Handler/AllTests.php';
 require_once 'Aspamia/Http/ServerTest.php';
@@ -29,6 +30,7 @@ class Aspamia_Http_AllTests
     {
         $suite = new PHPUnit_Framework_TestSuite('Aspamia - Aspamia_Http');
         
+        $suite->addTestSuite('Aspamia_Http_RequestTest');
         $suite->addTestSuite('Aspamia_Http_ResponseTest');
         $suite->addTest(Aspamia_Http_Server_Handler_AllTests::suite());
         $suite->addTestSuite('Aspamia_Http_ServerTest');
