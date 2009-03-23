@@ -7,9 +7,8 @@ require_once 'Aspamia/Http/Server/Handler/Abstract.php';
 class Aspamia_Http_Server
 {
     const ASPAMIA_VERSION = '0.0.1';
-     
-    const DEFAULT_ADDR = '127.0.0.1';
-    const DEFAULT_PORT = 8000;
+    const DEFAULT_ADDR    = '127.0.0.1';
+    const DEFAULT_PORT    = 8000;
     
     protected $_config = array(
         'bind_addr'      => self::DEFAULT_ADDR,
@@ -52,7 +51,7 @@ class Aspamia_Http_Server
         
         // Initialize handler
         if ($this->_config['handler'] instanceof Aspamia_Http_Server_Handler_Abstract) {
-            $this->_handler = $this->_config['handler'];
+            $this->setHandler($handler);
              
         } elseif (is_string($this->_config['handler'])) {
             require_once 'Zend/Loader.php';
@@ -64,7 +63,7 @@ class Aspamia_Http_Server
                 throw new Aspamia_Http_Server_Exception("Provded handler is not a Aspamia_Http_Server_Handler_Abstract object");
             }
             
-            $this->_handler = $handler;
+            $this->setHandler($handler);
         }
     }
     
@@ -86,6 +85,23 @@ class Aspamia_Http_Server
         
         foreach($config as $k => $v) {
             $this->_config[$k] = $v;
+        }
+    }
+    
+    /**
+     * Get a configuration option value or the entire configuration array
+     * 
+     * @param  null|string $key
+     * @return mixed
+     */
+    public function getConfig($key = null)
+    {
+        if ($key === null) {
+            return $this->_config;
+        } elseif (isset($this->_config[$key])) {
+            return $this->_config[$key];
+        } else {
+            return null;
         }
     }
         
@@ -153,9 +169,15 @@ class Aspamia_Http_Server
         $this->_callServerShutdownPlugins();
     }
     
+    /**
+     * Set the handler object
+     * 
+     * @param  Aspamia_Http_Server_Handler_Abstract $handler
+     */
     public function setHandler(Aspamia_Http_Server_Handler_Abstract $handler)
     {
         $this->_handler = $handler;
+        $handler->setServer($this);
     }
     
     protected function _handle($connection)

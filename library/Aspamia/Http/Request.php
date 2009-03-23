@@ -38,6 +38,20 @@ class Aspamia_Http_Request extends Aspamia_Http_Message
     protected $_socket;
     
     /**
+     * The remote address who made the request
+     * 
+     * @var string
+     */
+    protected $_remoteAddress = null;
+    
+    /**
+     * The local IP address that recieved the request
+     * 
+     *  @var string
+     */
+    protected $_localAddress = null;
+    
+    /**
      * Create a new request object
      *
      * @param string $method
@@ -71,6 +85,26 @@ class Aspamia_Http_Request extends Aspamia_Http_Message
     public function getUri()
     {
         return $this->_uri;
+    }
+    
+    /**
+     * Get the remote address from which the request came, if known
+     * 
+     * @return string
+     */
+    public function getRemoteAddress()
+    {
+        return $this->_remoteAddress;
+    }
+    
+    /**
+     * Get the local address to which the response was sent, if known
+     * 
+     * @return string
+     */
+    public function getLocalAddress()
+    {
+        return $this->_localAddress;
     }
     
     /**
@@ -157,6 +191,10 @@ class Aspamia_Http_Request extends Aspamia_Http_Message
      */
     static public function read($connection, $read_body = false)
     {
+        // Get the local and remote address of the connection
+        $localAddress = stream_socket_get_name($connection, false);
+        $remoteAddress = stream_socket_get_name($connection, true); 
+        
         $headerlines = self::_readHeaders($connection);
         if (empty($headerlines)) {
             require_once 'Aspamia/Http/Exception.php';
@@ -192,6 +230,8 @@ class Aspamia_Http_Request extends Aspamia_Http_Message
         $request = new Aspamia_Http_Request($method, $uri, $headers);
         $request->_httpVersion = $protocol[1];
         $request->_socket = $connection;
+        $request->_localAddress = $localAddress;
+        $request->_remoteAddress = $remoteAddress;
         
         if ($read_body) {
             $request->_readBody();

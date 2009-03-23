@@ -204,7 +204,7 @@ class Aspamia_Http_Response extends Aspamia_Http_Message
             require_once 'Aspamia/Http/Exception.php';
             throw new Aspamia_Http_Exception("Invalid HTTP response status line: $statusLine");
         }
-
+        
         $response = new Aspamia_Http_Response(
             (int) $parts[2], 
             $headers, 
@@ -212,6 +212,11 @@ class Aspamia_Http_Response extends Aspamia_Http_Message
             $parts[1],
             $parts[3]
         );
+        
+        // Add the content-length header if not set
+        if ($response->getHeader('content-length') === null) {
+            $response->setHeader('content-length', strlen($body));
+        }
         
         return $response;
     }

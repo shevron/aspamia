@@ -9,6 +9,13 @@ abstract class Aspamia_Http_Server_Handler_Abstract
      */
     protected $_config = array();
     
+    /**
+     * The parent server object
+     * 
+     * @var Aspamia_Http_Server
+     */
+    protected $_server = null;
+    
     public function __construct($config = array())
     {
        $this->setConfig($config);
@@ -33,6 +40,16 @@ abstract class Aspamia_Http_Server_Handler_Abstract
         foreach ($config as $k => $v) {
             $this->_config[$k] = $v;
         }
+    }
+    
+    /**
+     * Set the related server object. Called when registering the handler.
+     * 
+     * @param  Aspamia_Http_Server $server
+     */
+    public function setServer(Aspamia_Http_Server $server)
+    {
+        $this->_server = $server;
     }
     
     /**
