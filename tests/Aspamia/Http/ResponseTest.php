@@ -131,6 +131,32 @@ class Aspamia_Http_ResponseTest extends PHPUnit_Framework_TestCase
     }
     
     /**
+     * Test that we can get / set the HTTP version
+     * 
+     */
+    public function testSetGetVersion()
+    {
+        // Test that the default version is 1.1
+        $response = new Aspamia_Http_Response(200, array());
+        $this->assertEquals('1.1', $response->getHttpVersion());
+        
+        // Test that we can set the version to 1.0
+        $response->setHttpVersion('1.0');
+        $this->assertEquals('1.0', $response->getHttpVersion());
+    }
+    
+    /**
+     * Test that an exception is thrown when trying to set an invalid version
+     * 
+     * @dataProvider      invalidVersionProvider
+     * @expectedException Aspamia_Http_Exception
+     */
+    public function testInvalidHttpVersion($ver)
+    {
+        $response = new Aspamia_Http_Response(200, array(), '', $ver);
+    }
+    
+    /**
      * Data Providers
      */
     
@@ -200,6 +226,21 @@ class Aspamia_Http_ResponseTest extends PHPUnit_Framework_TestCase
             array('http_response_02.txt', 404, '02', '<!DOCTYPE HTML PUBLIC'),
             array('http_response_03.txt', 302, '03', 'Error: Zend Platform '),
             array('http_response_04.txt', 404, '04', ''),
+        );
+    }
+    
+    /**
+     * Provide some invalid HTTP protocol versions
+     * 
+     * @return array
+     */
+    static public function invalidVersionProvider()
+    {
+        return array(
+            array(0.9),
+            array('crap'),
+            array('1'),
+            array(''),
         );
     }
 }

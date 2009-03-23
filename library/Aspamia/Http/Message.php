@@ -168,14 +168,15 @@ abstract class Aspamia_Http_Message
      * @param  string $_httpVersion
      * @return Aspamia_Http_Message
      */
-    public function setHttpVersion($_httpVersion)
+    public function setHttpVersion($httpVersion)
     {
-        if (! ($_httpVersion == '1.0' || $_httpVersion == '1.1')) {
+        $httpVersion = (string) $httpVersion; 
+        if (! ($httpVersion === '1.0' || $httpVersion === '1.1')) {
             require_once 'Aspamia/Http/Exception.php';
-            throw new Aspamia_Http_Exception("Unsupported HTTP version: $_httpVersion");
+            throw new Aspamia_Http_Exception("Unsupported HTTP version: $httpVersion");
         }
         
-        $this->_httpVersion = $_httpVersion;
+        $this->_httpVersion = $httpVersion;
         return $this;
     }
     
