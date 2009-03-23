@@ -195,7 +195,7 @@ class Aspamia_Http_Request extends Aspamia_Http_Message
         $localAddress = stream_socket_get_name($connection, false);
         $remoteAddress = stream_socket_get_name($connection, true); 
         
-        $headerlines = self::_readHeaders($connection);
+        $headerlines = self::readHeaders($connection);
         if (empty($headerlines)) {
             require_once 'Aspamia/Http/Exception.php';
             throw new Aspamia_Http_Exception("Unable to read request: headers are empty");
@@ -238,24 +238,5 @@ class Aspamia_Http_Request extends Aspamia_Http_Message
         }
         
         return $request;
-    }
-    
-    /**
-     * Read the entire headers section of the response, returning it as an
-     * array of lines
-     *
-     * @param  resource $connection
-     * @return array
-     */
-    static protected function _readHeaders($connection)
-    {
-        $headers = array();
-        while (($line = @fgets($connection)) !== false) {
-            $line = trim($line);
-            if (! $line) break; 
-            $headers[] = $line;
-        }
-        
-        return $headers; 
     }
 }

@@ -14,8 +14,9 @@ $server = new Aspamia_Http_Server();
 
 // Create the handler object - a single static handler for now
 $handler = new Aspamia_Http_Server_Handler_Cgi(array(
-    'handler'       => '/usr/bin/php-cgi',
-    'document_root' => dirname(__FILE__) . DIRECTORY_SEPARATOR . 'cgi'
+    'handler'        => '/usr/bin/php-cgi',
+//    'handler_script' => 'index.php', 
+    'document_root'  => dirname(__FILE__) . DIRECTORY_SEPARATOR . 'cgi'
 ));
 $server->setHandler($handler);
 

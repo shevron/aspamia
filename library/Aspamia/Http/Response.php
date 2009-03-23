@@ -159,6 +159,23 @@ class Aspamia_Http_Response extends Aspamia_Http_Message
         $this->_code = $code;
         return $this;
     }
+
+    /**
+     * Set the HTTP reason phrase 
+     * 
+     * @param  string|null $message
+     * @return Aspamia_Http_Response
+     */
+    public function setMessage($message)
+    {
+        if (! (is_string($message) || $message === null)) {
+            require_once 'Aspamia/Http/Exception.php';
+            throw new Aspamia_Http_Exception("Invalid HTTP message phrase: '$message'");
+        }
+        
+        $this->_message = $message;
+        return $this;
+    }
     
     /**
      * Get the request start line - e.g. "GET / HTTP/1.1" 

@@ -111,21 +111,72 @@ class Aspamia_Http_Server_Handler_Cgi extends Aspamia_Http_Server_Handler_Abstra
         fwrite($pipes[0], $request->getBody());
         fclose($pipes[0]);
         
-        // Read the response
-        $response = stream_get_contents($pipes[1]);
+        // Read the response headers
+        $headerlines = Aspamia_Http_Message::readHeaders($pipes[1]);
+        if (empty($headerlines)) {
+            $headers = array(
+                'content-type' => 'text/plain',
+                'x-aspamia-message' => 'missing-cgi-headers'
+            );
+            $code = 200;
+            $message = 'Ok';
+            $httpVersion = '1.1';
+            
+            $response = new Aspamia_Http_Response(
+                $code, 
+                $headerlines, 
+                '', 
+                $httpVersion,
+                $message
+            );
+            
+        } else {
+            if (strpos($headerlines[0], 'HTTP/') === 0) {
+                // Got a status line, use it
+                $statusLine = explode(' ', array_shift($headerlines), 3);
+                if (! count($statusLine) == 3) {
+                    require_once 'Aspamia/Http/Server/Handler/Exception.php';
+                    throw new Aspamia_Http_Server_Handler_Exception("Unable to read status line from CGI handler");
+                }
+                
+                $code = (int) $statusLine[1];
+                $message = $statusLine[2];
+                $httpVersion = substr($statusLine[0], 5);
+                
+                $response = new Aspamia_Http_Response(
+                    $code, 
+                    $headerlines, 
+                    '', 
+                    $httpVersion,
+                    $message
+                );
+                
+            } else {
+                $response = new Aspamia_Http_Response(
+                    200, 
+                    $headerlines 
+                );
+                
+                if (($status = $response->getHeader('status'))) {
+                    $status = explode(' ', $status);
+                    if (isset($status[0])) $response->setStatus((int) $status[0]);
+                    if (isset($status[1])) $response->setMessage($status[1]);
+                    $response->setHeader('status', false);
+                }
+            }
+        }
+        
+        // Read the response body
+        $body = stream_get_contents($pipes[1]);
         fclose($pipes[1]);
 
         // Close CGI process
         proc_close($cgi_proc);
         
         // Create the status line
-        $statusLine = "HTTP/{$request->getHttpVersion()}";
-        if (preg_match('/\Astatus:\s*(\d+ .+)$/', $response, $m)) {
-            $statusLine .= " {$m[1]}\r\n";
-        } else {
-            $statusLine .= " 200 OK\r\n"; // Default, send 200 Ok
-        }
+        $response->setBody($body);
+        $response->setHeader('content-length', strlen($body));
         
-        return Aspamia_Http_Response::fromString($statusLine . $response);
+        return $response;
     }
 }

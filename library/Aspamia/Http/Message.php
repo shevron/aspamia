@@ -135,9 +135,14 @@ abstract class Aspamia_Http_Message
 
         // If we got a single header, set it
         } else {
-            
-            // No value - expect a single 'key: value' string
-            if ($value === null) {
+            // Boolean false - unset header
+            if ($value === false) {
+                if (isset($this->_headers[$header])) {
+                    unset($this->_headers[$header]);
+                }
+                
+            // No value - expect a single 'key: value' string    
+            } elseif ($value === null) {
                 $parts = explode(':', $header, 2);
                 if (count($parts) != 2) {
                     require_once 'Aspamia/Http/Exception.php';
@@ -196,6 +201,26 @@ abstract class Aspamia_Http_Message
     public function __toString()
     {
         return $this->getAllHeaders(true) . self::CRLF . $this->getBody();
+    }
+    
+    /**
+     * Read the entire headers section of the message from a stream
+     * 
+     * Will return an array of lines
+     *
+     * @param  resource $connection
+     * @return array
+     */
+    static public function readHeaders($connection)
+    {
+        $headers = array();
+        while (($line = @fgets($connection)) !== false) {
+            $line = trim($line);
+            if (! $line) break; 
+            $headers[] = $line;
+        }
+        
+        return $headers; 
     }
     
     /**
