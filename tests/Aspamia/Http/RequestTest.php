@@ -64,6 +64,35 @@ class Aspamia_Http_RequestTest extends PHPUnit_Framework_TestCase
     }
     
     /**
+     * Test that passing FALSE as header value will unset it
+     * 
+     */
+    public function testUnsetHeader()
+    {
+        $request = new Aspamia_Http_Request('GET', '/');
+        
+        $request->setHeader('User-Agent', 'Foo/Bar');
+        $this->assertEquals('Foo/Bar', $request->getHeader('user-agent'));
+        
+        $request->setHeader('user-agent', false);
+        $this->assertNull($request->getHeader('user-agent'));
+    }
+    
+    /**
+     * Test that trying to set invalid header names throw an exception
+     * 
+     * @param string $header
+     * 
+     * @dataProvider      invalidHeaderProvider
+     * @expectedException Aspamia_Http_Exception
+     */
+    public function testInvalidHeaderName($header)
+    {
+        $request = new Aspamia_Http_Request('GET', '/');
+        $request->setHeader($header);
+    }
+    
+    /**
      * Data Providers
      */
     
@@ -129,6 +158,21 @@ class Aspamia_Http_RequestTest extends PHPUnit_Framework_TestCase
             array('ftp://example.com/baz/bar', 'GET'),
             array('host:433', 'HEAD'),
             array('http://example.com/path', 'CONNECT')
+        );
+    }
+    
+    /**
+     * Provide some invalid header lines
+     * 
+     * @return array
+     */
+    static public function invalidHeaderProvider()
+    {
+        return array(
+            array('Someheader; novalue'),
+            array('foo bar: baz'),
+            array('foo,bar: bar'),
+            array(null),
         );
     }
 }

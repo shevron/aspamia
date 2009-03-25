@@ -133,16 +133,17 @@ abstract class Aspamia_Http_Message
                 }
             }
 
+        // Boolean false - unset header
+        } elseif ($value === false) {
+        
+            if (isset($this->_headers[$header])) {
+                unset($this->_headers[$header]);
+            }
+
         // If we got a single header, set it
         } else {
-            // Boolean false - unset header
-            if ($value === false) {
-                if (isset($this->_headers[$header])) {
-                    unset($this->_headers[$header]);
-                }
-                
             // No value - expect a single 'key: value' string    
-            } elseif ($value === null) {
+            if ($value === null) {
                 $parts = explode(':', $header, 2);
                 if (count($parts) != 2) {
                     require_once 'Aspamia/Http/Exception.php';
