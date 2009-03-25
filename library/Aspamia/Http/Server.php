@@ -144,7 +144,7 @@ class Aspamia_Http_Server
         $this->_socket = stream_socket_server($this->getBindAddr(), $errno, $errstr, $flags, $this->_context);
         if (! $this->_socket) {
             require_once 'Aspamia/Http/Server/Exception.php';
-            $message = "Unable to bind to '$addr'";
+            $message = "Unable to bind to '{$this->getBindAddr()}'";
             if ($errno || $errstr) $message .= ": [#$errno] $errstr";
             throw new Aspamia_Http_Server_Exception($message);
         }
