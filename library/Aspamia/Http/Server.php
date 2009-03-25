@@ -200,8 +200,9 @@ class Aspamia_Http_Server
         
         // TODO: Right now only 'close' is working, make keep-alive work too.  
         $response->setHeader('connection', 'close');
-        
         fwrite($connection, (string) $response);
+        fclose($conn);
+        
         $this->_callPostResponsePlugins($connection);
     }
     

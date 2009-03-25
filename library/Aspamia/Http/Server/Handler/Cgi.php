@@ -120,7 +120,7 @@ class Aspamia_Http_Server_Handler_Cgi extends Aspamia_Http_Server_Handler_Abstra
             );
             $code = 200;
             $message = 'Ok';
-            $httpVersion = '1.1';
+            $httpVersion = $request->getHttpVersion();
             
             $response = new Aspamia_Http_Response(
                 $code, 
@@ -154,7 +154,9 @@ class Aspamia_Http_Server_Handler_Cgi extends Aspamia_Http_Server_Handler_Abstra
             } else {
                 $response = new Aspamia_Http_Response(
                     200, 
-                    $headerlines 
+                    $headerlines,
+                    '',
+                    $request->getHttpVersion()
                 );
                 
                 if (($status = $response->getHeader('status'))) {
