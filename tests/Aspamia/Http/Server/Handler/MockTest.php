@@ -4,7 +4,8 @@ require_once realpath(dirname(__FILE__) . '/../../../../TestHelper.php');
 
 require_once 'Aspamia/Http/Server/Handler/Mock.php';
 
-require_once 'Aspamia/Http/Request.php'; 
+require_once 'Aspamia/Http/Request.php';
+require_once 'Aspamia/Http/Response.php';  
 
 class Aspamia_Http_Server_Handler_MockTest extends PHPUnit_Framework_TestCase
 {

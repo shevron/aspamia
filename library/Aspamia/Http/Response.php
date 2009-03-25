@@ -230,11 +230,6 @@ class Aspamia_Http_Response extends Aspamia_Http_Message
             $parts[3]
         );
         
-        // Add the content-length header if not set
-        if ($response->getHeader('content-length') === null) {
-            $response->setHeader('content-length', strlen($body));
-        }
-        
         return $response;
     }
 }

@@ -15,6 +15,7 @@ if (!defined('PHPUnit_MAIN_METHOD')) {
 
 // Load the sub-tests of this suite
 require_once 'Aspamia/Http/Server/Handler/MockTest.php';
+require_once 'Aspamia/Http/Server/Handler/RouterTest.php';
 
 class Aspamia_Http_Server_Handler_AllTests
 {
@@ -27,6 +28,7 @@ class Aspamia_Http_Server_Handler_AllTests
     {
         $suite = new PHPUnit_Framework_TestSuite('Aspamia - Aspamia_Http_Server_Handler');
         $suite->addTestSuite('Aspamia_Http_Server_Handler_MockTest');
+        $suite->addTestSuite('Aspamia_Http_Server_Handler_RouterTest');
         return $suite;
     }
 }
