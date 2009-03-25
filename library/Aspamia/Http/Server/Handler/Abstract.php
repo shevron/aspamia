@@ -43,6 +43,23 @@ abstract class Aspamia_Http_Server_Handler_Abstract
     }
     
     /**
+     * Get a configuration option value or the entire configuration array
+     * 
+     * @param  null|string $key
+     * @return mixed
+     */
+    public function getConfig($key = null)
+    {
+        if ($key === null) {
+            return $this->_config;
+        } elseif (isset($this->_config[$key])) {
+            return $this->_config[$key];
+        } else {
+            return null;
+        }
+    }
+    
+    /**
      * Set the related server object. Called when registering the handler.
      * 
      * @param  Aspamia_Http_Server $server
